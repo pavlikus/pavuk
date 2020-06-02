@@ -14,12 +14,9 @@ if __name__ == '__main__':
                         nargs='+',
                         help="search phrase")
     parser.add_argument('-s', '--search',
-                        # required=False,
-                        # default='yandex',
                         choices=('google', 'yandex'),
                         help="search engine")
     parser.add_argument('-o', '--output',
-                        # required=False,
                         choices=('csv', 'json'),
                         help="output format file, default this console")
 
