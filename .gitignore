@@ -130,3 +130,9 @@ dmypy.json
 
 # Emacs backup file
 *~
+\#*\#
+.\#*
+
+# Working test output file
+*.json
+*.csv
