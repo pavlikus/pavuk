@@ -8,7 +8,7 @@ from scraper import engine
 from scraper import scraper
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('keywords',
                         nargs='+',
@@ -41,3 +41,7 @@ if __name__ == '__main__':
         for r in result:
             print(f"{r['title']} --- {r['url']}")
         print(f"Total links: {len(result)}")
+
+
+if __name__ == '__main__':
+    main()
