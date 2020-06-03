@@ -88,7 +88,13 @@ class Requests(AbstractEngine):
 class Selenium(AbstractEngine):
 
     def __init__(self):
-        self.driver = webdriver.Chrome()
+        self.driver = self.__init_driver()
+
+    def __init_driver(self):
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument('--start-maximized')
+        return webdriver.Chrome(chrome_options=options)
 
     def get_urls(self,
                  keyword: str,
@@ -99,7 +105,7 @@ class Selenium(AbstractEngine):
         url = f"{search.url}?{search.key}={keyword}"
         self.driver.get(url)
         # import pdb
-        #  pdb.set_trace()
+        # pdb.set_trace()
         items = self.driver.find_element_by_id(search.search_id)
         for item in items.find_elements_by_xpath(search.elements['xpath']):
 
