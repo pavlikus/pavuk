@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from time import sleep
 from typing import Dict, List, Type
 
 from bs4 import BeautifulSoup
@@ -22,6 +23,8 @@ class YandexSearchEngine(SearchEngine):
     elements = {'type': 'li', 'name': 'serp-item', 'xpath': '//li//h2'}
     title = None
     link = {'type': 'a'}
+    __next = "//span[contains(@class, 'pager__item')]/following-sibling::a"
+    next_url = {'xpath': __next}
 
 
 class GoogleSearchEngine(SearchEngine):
@@ -32,6 +35,8 @@ class GoogleSearchEngine(SearchEngine):
     elements = {'type': 'div', 'name': 'r', 'xpath': "//div[@class='r']"}
     title = {'type': 'h3'}
     link = {'type': 'a'}
+    __next = "//div[@id='foot']//td[@class][2]/following-sibling::td/a"
+    next_url = {'xpath': __next}
 
 
 # TODO: Optimisation search element (XPath, ...)
@@ -98,25 +103,32 @@ class Selenium(AbstractEngine):
 
     def get_urls(self,
                  keyword: str,
+                 qty: int = 0,
                  search: Type[SearchEngine] = None) -> List[Dict[str, str]]:
-
         urls = []
         search = search or YandexSearchEngine
         url = f"{search.url}?{search.key}={keyword}"
         self.driver.get(url)
-        # import pdb
-        # pdb.set_trace()
-        items = self.driver.find_element_by_id(search.search_id)
-        for item in items.find_elements_by_xpath(search.elements['xpath']):
 
-            link = item.find_element_by_tag_name(search.link['type'])
-            if search.title is not None:
-                title = item.find_element_by_tag_name(search.title['type'])
-            else:
-                title = link
-            urls.append({'title': title.text,
-                         'url': link.get_attribute('href')})
-        return urls
+        while True:
+            items = self.driver.find_element_by_id(search.search_id)
+            for item in items.find_elements_by_xpath(search.elements['xpath']):
+
+                link = item.find_element_by_tag_name(search.link['type'])
+                if search.title is not None:
+                    title = item.find_element_by_tag_name(search.title['type'])
+                else:
+                    title = link
+                urls.append({'title': title.text,
+                             'url': link.get_attribute('href')})
+
+            if qty <= len(urls):
+                break
+
+            self.driver.find_element_by_xpath(search.next_url['xpath']).click()
+            sleep(1)
+
+        return urls if not qty else urls[:qty]
 
     def find_urls(self, url):
         ...
