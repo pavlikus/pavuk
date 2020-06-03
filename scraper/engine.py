@@ -20,9 +20,9 @@ class YandexSearchEngine(SearchEngine):
     url = 'https://yandex.com/search/'
     search_id = 'search-result'
     key = 'text'
-    elements = {'type': 'li', 'name': 'serp-item', 'xpath': '//li//h2'}
+    elements = {'tag': 'li', 'name': 'serp-item', 'xpath': '//li//h2'}
     title = None
-    link = {'type': 'a'}
+    link = {'tag': 'a'}
     __next = "//span[contains(@class, 'pager__item')]/following-sibling::a"
     next_url = {'xpath': __next}
 
@@ -32,9 +32,9 @@ class GoogleSearchEngine(SearchEngine):
     url = 'https://google.com/search'
     search_id = 'search'
     key = 'q'
-    elements = {'type': 'div', 'name': 'r', 'xpath': "//div[@class='r']"}
-    title = {'type': 'h3'}
-    link = {'type': 'a'}
+    elements = {'tag': 'div', 'name': 'r', 'xpath': "//div[@class='r']"}
+    title = {'tag': 'h3'}
+    link = {'tag': 'a'}
     __next = "//div[@id='foot']//td[@class][2]/following-sibling::td/a"
     next_url = {'xpath': __next}
 
@@ -73,10 +73,10 @@ class Requests(AbstractEngine):
             items = soup.find(id=search.search_id)
             import pdb
             pdb.set_trace()
-            for item in items.find_all(search.element['type'],
+            for item in items.find_all(search.element['tag'],
                                        class_=search.element['name']):
                 # if search.title is not None:
-                link = item.find(search.link['type'],
+                link = item.find(search.link['tag'],
                                  class_=search.link['name'])
 
                 urls.append({'title': link.text,
@@ -114,9 +114,9 @@ class Selenium(AbstractEngine):
             items = self.driver.find_element_by_id(search.search_id)
             for item in items.find_elements_by_xpath(search.elements['xpath']):
 
-                link = item.find_element_by_tag_name(search.link['type'])
+                link = item.find_element_by_tag_name(search.link['tag'])
                 if search.title is not None:
-                    title = item.find_element_by_tag_name(search.title['type'])
+                    title = item.find_element_by_tag_name(search.title['tag'])
                 else:
                     title = link
                 urls.append({'title': title.text,
