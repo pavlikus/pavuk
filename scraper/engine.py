@@ -11,10 +11,7 @@ from selenium import webdriver
 class SearchEngine:
 
     """Base class for Search Engine"""
-    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36',
-               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-               'Upgrade-Insecure-Requests': '1',
-               'DNT': '1'}
+    headers = {'User-Agent': "Mozilla/5.0 (X11; Linux x86_64)"}
 
 
 class YandexSearchEngine(SearchEngine):
@@ -73,7 +70,7 @@ class Requests(AbstractEngine):
             pdb.set_trace()
             for item in items.find_all(search.element['type'],
                                        class_=search.element['name']):
-                #if search.title is not None:
+                # if search.title is not None:
                 link = item.find(search.link['type'],
                                  class_=search.link['name'])
 

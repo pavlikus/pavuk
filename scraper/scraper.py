@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from .engine import Requests, Selenium
+from .engine import Selenium
 
 
 class Scraper:

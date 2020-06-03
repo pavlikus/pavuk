@@ -22,6 +22,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # Get result
     scr = scraper.Scraper()
     if args.search == 'google':
         result = scr.get_urls(' '.join(args.keywords),
@@ -30,10 +31,12 @@ if __name__ == '__main__':
         result = scr.get_urls(' '.join(args.keywords))
     scr.close()
 
-    if args.output == 'csv':
-        formater.to_csv(result)
-    elif args.output == 'json':
-        formater.to_json(result)
+    # Write result to output
+    outputs = {'csv': formater.to_csv,
+               'json': formater.to_json}
+
+    if args.output is not None:
+        outputs[args.output](result)
     else:
         for r in result:
             print(f"{r['title']} --- {r['url']}")
