@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import requests
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 
 
 class SearchEngine:
@@ -97,7 +98,7 @@ class Selenium(AbstractEngine):
 
     def __init_driver(self):
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        # options.add_argument('--headless')
         options.add_argument('--start-maximized')
         return webdriver.Chrome(chrome_options=options)
 
@@ -131,7 +132,19 @@ class Selenium(AbstractEngine):
         return urls if not qty else urls[:qty]
 
     def find_urls(self, url):
-        ...
+        self.driver.get(url)
+        links = []
+        try:
+            items = self.driver.find_elements_by_tag_name('a')
+            for item in items:
+                link = {'title': item.text,
+                        'url': item.get_attribute('href')}
+                if link['url'] and link not in links:
+                    links.append(link)
+        except NoSuchElementException as e:
+            print(url, e)
+        finally:
+            return links
 
     def close(self):
         self.driver.close()

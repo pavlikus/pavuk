@@ -12,5 +12,8 @@ class Scraper:
     def get_urls(self, *args, **kwargs) -> List[Dict[str, str]]:
         return self.engine.get_urls(*args, **kwargs)
 
+    def find_urls(self, *args, **kwargs) -> List[Dict[str, str]]:
+        return self.engine.find_urls(*args, **kwargs)
+
     def close(self, *args, **kwargs):
         self.engine.close(*args, **kwargs)
