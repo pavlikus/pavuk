@@ -5,8 +5,7 @@ from typing import Dict, List
 
 import formater
 
-from scraper import engine
-from scraper import scraper
+import scraper
 
 
 def get_args():
@@ -44,12 +43,8 @@ def get_result(keywords: str,
     """Get main seach result"""
 
     scr = scraper.Scraper()
-    if search == 'google':
-        result = scr.get_urls(' '.join(keywords),
-                              qty=qty,
-                              search=engine.GoogleSearchEngine)
-    else:
-        result = scr.get_urls(' '.join(keywords), qty=qty)
+    qty = qty or 0
+    result = scr.get_urls(' '.join(keywords), qty=qty, search=search)
     scr.close()
 
     return result

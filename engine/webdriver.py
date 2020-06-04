@@ -4,40 +4,12 @@ from typing import Dict, List, Type
 
 from bs4 import BeautifulSoup
 
+from engine.search import Search
+
 import requests
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-
-
-class SearchEngine:
-
-    """Base class for Search Engine"""
-    headers = {'User-Agent': "Mozilla/5.0 (X11; Linux x86_64)"}
-
-
-class YandexSearchEngine(SearchEngine):
-
-    url = 'https://yandex.com/search/'
-    search_id = 'search-result'
-    key = 'text'
-    elements = {'tag': 'li', 'name': 'serp-item', 'xpath': '//li//h2'}
-    title = None
-    link = {'tag': 'a'}
-    __next = "//span[contains(@class, 'pager__item')]/following-sibling::a"
-    next_url = {'xpath': __next}
-
-
-class GoogleSearchEngine(SearchEngine):
-
-    url = 'https://google.com/search'
-    search_id = 'search'
-    key = 'q'
-    elements = {'tag': 'div', 'name': 'r', 'xpath': "//div[@class='r']"}
-    title = {'tag': 'h3'}
-    link = {'tag': 'a'}
-    __next = "//div[@id='foot']//td[@class][2]/following-sibling::td/a"
-    next_url = {'xpath': __next}
 
 
 # TODO: Optimisation search element (XPath, ...)
@@ -46,7 +18,7 @@ class AbstractEngine(ABC):
     @abstractmethod
     def get_urls(self,
                  keyword: str,
-                 search: Type[SearchEngine]) -> List[Dict[str, str]]:
+                 search: Type[Search]) -> List[Dict[str, str]]:
         raise NotImplementedError
 
     @abstractmethod
@@ -62,9 +34,8 @@ class Requests(AbstractEngine):
 
     def get_urls(self,
                  keyword: str,
-                 search: Type[SearchEngine] = None) -> List[Dict[str, str]]:
+                 search: Type[Search] = None) -> List[Dict[str, str]]:
         urls = []
-        search = search or YandexSearchEngine
         r = requests.Session()
         response = r.get(search.url,
                          params={search.key: keyword},
@@ -103,12 +74,11 @@ class Selenium(AbstractEngine):
         return webdriver.Chrome(chrome_options=options)
 
     def get_urls(self,
+                 url: str,
                  keyword: str,
                  qty: int = 0,
-                 search: Type[SearchEngine] = None) -> List[Dict[str, str]]:
+                 search: Type[Search] = None) -> List[Dict[str, str]]:
         urls = []
-        search = search or YandexSearchEngine
-        url = f"{search.url}?{search.key}={keyword}"
         self.driver.get(url)
 
         while True:

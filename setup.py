@@ -3,9 +3,9 @@ from setuptools import find_packages, setup
 
 setup(
     name='pavuk',
-    version='0.0.2',
+    version='0.0.5',
     packages=find_packages(),
-    py_modules=['formater', 'pavuk'],
+    py_modules=['formater', 'pavuk', 'scraper'],
     include_package_data=True,
     license='GNU General Public License v3.0',
     description="Web Scraper",
