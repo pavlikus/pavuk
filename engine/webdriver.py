@@ -12,11 +12,11 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
 
-# TODO: Optimisation search element (XPath, ...)
 class AbstractEngine(ABC):
 
     @abstractmethod
     def get_urls(self,
+                 url: str,
                  keyword: str,
                  search: Type[Search]) -> List[Dict[str, str]]:
         raise NotImplementedError
@@ -32,34 +32,47 @@ class AbstractEngine(ABC):
 
 class Requests(AbstractEngine):
 
+    def __init__(self):
+        self.s = requests.Session()
+
     def get_urls(self,
+                 url: str,
                  keyword: str,
+                 qty: int = 0,
                  search: Type[Search] = None) -> List[Dict[str, str]]:
         urls = []
-        r = requests.Session()
-        response = r.get(search.url,
-                         params={search.key: keyword},
-                         headers=search.headers)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'lxml')
-            items = soup.find(id=search.search_id)
-            import pdb
-            pdb.set_trace()
-            for item in items.find_all(search.element['tag'],
-                                       class_=search.element['name']):
-                # if search.title is not None:
-                link = item.find(search.link['tag'],
-                                 class_=search.link['name'])
+        url = search.url
 
-                urls.append({'title': link.text,
-                             'url': link['href']})
+        while True:
+            response = self.s.get(url,
+                                  params={search.key: keyword},
+                                  headers=search.headers)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'lxml')
+                items = soup.find(id=search.search_id)
+                for item in items.find_all(search.element['tag'],
+                                           class_=search.element['name']):
+
+                    link = item.find(search.link['tag'])
+                    if search.title is not None:
+                        title = item.find(search.title['tag'])
+                    else:
+                        title = link
+
+                        urls.append({'title': title.text,
+                                     'url': link['href']})
+                # if qty <= len(urls):
+                #     break
+
+                sleep(1)
+
         return urls
 
     def find_urls(self, url):
         ...
 
     def close(self):
-        ...
+        del self.s
 
 
 class Selenium(AbstractEngine):
@@ -72,6 +85,15 @@ class Selenium(AbstractEngine):
         options.add_argument('--headless')
         options.add_argument('--start-maximized')
         return webdriver.Chrome(chrome_options=options)
+
+    def __has_button_next(self, xpath):
+        try:
+            n = self.driver.find_element_by_xpath(xpath)
+            n.click()
+            sleep(1)
+            return True
+        except NoSuchElementException as e:
+            print(e)
 
     def get_urls(self,
                  url: str,
@@ -86,18 +108,17 @@ class Selenium(AbstractEngine):
             for item in items.find_elements_by_xpath(search.elements['xpath']):
 
                 link = item.find_element_by_tag_name(search.link['tag'])
-                if search.title is not None:
-                    title = item.find_element_by_tag_name(search.title['tag'])
-                else:
-                    title = link
-                urls.append({'title': title.text,
-                             'url': link.get_attribute('href')})
+                title = item.find_element_by_tag_name(search.title['tag'])
 
-            if qty <= len(urls):
+                url = {'title': title.text,
+                       'url': link.get_attribute('href')}
+
+                if url not in urls:
+                    urls.append(url)
+
+            next_url = self.__has_button_next(search.next_url['xpath'])
+            if qty <= len(urls) or not next_url:
                 break
-
-            self.driver.find_element_by_xpath(search.next_url['xpath']).click()
-            sleep(1)
 
         return urls if not qty else urls[:qty]
 

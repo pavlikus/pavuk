@@ -16,7 +16,7 @@ def get_args():
                         nargs='+',
                         help="search phrase")
     parser.add_argument('-s', '--search',
-                        choices=('google', 'yandex'),
+                        choices=('duckduckgo', 'google', 'yandex'),
                         help="search engine")
     parser.add_argument('-q', '--qty',
                         type=int,
@@ -24,6 +24,9 @@ def get_args():
     parser.add_argument('-o', '--output',
                         choices=('csv', 'json'),
                         help="output format file, default this console")
+    # parser.add_argument('-w', '--webdriver',
+    #                     choices=('requests', 'selenium'),
+    #                    help="Scraper Web Driver, default selenium")
     parser.add_argument('-r', '--recursive',
                         action='store_true',
                         help="Find all links on main result")
@@ -39,10 +42,11 @@ def get_args():
 
 def get_result(keywords: str,
                search: str,
+               webdriver: str,
                qty: int = 0) -> List[Dict[str, str]]:
     """Get main seach result"""
 
-    scr = scraper.Scraper()
+    scr = scraper.Scraper(webdriver)
     qty = qty or 0
     result = scr.get_urls(' '.join(keywords), qty=qty, search=search)
     scr.close()
@@ -82,7 +86,7 @@ def writer(result: List[Dict[str, str]],
 def main():
 
     args = get_args()
-    result = get_result(args.keywords, args.search, args.qty)
+    result = get_result(args.keywords, args.search, 'selenium', args.qty)
     links = []
 
     # TODO: add multiproccesing

@@ -7,8 +7,12 @@ from engine import webdriver as wb
 class Scraper:
 
     def __init__(self, webdriver=None):
-        webdriver_ = webdriver or wb.Selenium
-        self.webdriver = webdriver_()  # Create webdriver object
+        webdrivers = {'requests': wb.Requests,
+                      'selenium': wb.Selenium}
+        if webdriver is not None:
+            self.webdriver = webdrivers[webdriver]()
+        else:
+            self.webdriver = wb.Selenium()  # Create webdriver object
 
     def get_urls(self,
                  keyword: str,
@@ -16,7 +20,8 @@ class Scraper:
                  *args,
                  **kwargs) -> List[Dict[str, str]]:
 
-        searchers = {'google': sc.GoogleSearch,
+        searchers = {'duckduckgo': sc.DuckDuckGoSearch,
+                     'google': sc.GoogleSearch,
                      'yandex': sc.YandexSearch}
         if search is not None:
             search = searchers[search]
