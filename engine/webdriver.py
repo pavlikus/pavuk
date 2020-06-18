@@ -82,7 +82,7 @@ class Selenium(AbstractEngine):
 
     def __init_driver(self):
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        # options.add_argument('--headless')
         options.add_argument('--start-maximized')
         return webdriver.Chrome(chrome_options=options)
 
