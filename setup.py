@@ -15,7 +15,7 @@ setup(
         "beautifulsoup4==4.9.1",
         "requests==2.23.0",
         "selenium==3.141.0",
-        "lxml==4.5.0"
+        "lxml==4.6.3"
     ],
     entry_points={
         'console_scripts': [
